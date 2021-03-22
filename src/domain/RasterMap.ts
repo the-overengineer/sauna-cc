@@ -25,13 +25,6 @@ export const parse = (stringRepresentation: string): RasterMap => {
     throw new Error('A map must have at least one row');
   }
 
-  const rowLength = map[0]!.length;
-  const everyRowHasEqualLen = map.every((row) => row.length === rowLength);
-
-  if (!everyRowHasEqualLen) {
-    throw new Error('Every row must have equal length');
-  }
-
   map.forEach((row, i) => {
     row.forEach((square, j) => {
       // Maps may only contain valid squares and empty squares

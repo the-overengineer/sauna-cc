@@ -1,10 +1,12 @@
+import { RasterMap, Square } from './RasterMap';
+
 type Index = number;
 
 export enum Facing {
-  Up,
-  Right,
-  Down,
-  Left,
+  Up = 'Up',
+  Right = 'Right',
+  Down = 'Down',
+  Left = 'Left',
 }
 
 /**
@@ -28,21 +30,21 @@ export class Location {
   public get right(): Location {
     return new Location(
       [this.point[0], this.point[1] + 1],
-      Facing.Up,
+      Facing.Right,
     );
   }
 
   public get down(): Location {
     return new Location(
       [this.point[0] + 1, this.point[1]],
-      Facing.Up,
+      Facing.Down,
     );
   }
 
   public get left(): Location {
     return new Location(
       [this.point[0], this.point[1] - 1],
-      Facing.Up,
+      Facing.Left,
     );
   }
 
@@ -56,6 +58,26 @@ export class Location {
       case Facing.Right: return Facing.Left;
       case Facing.Down: return Facing.Up;
       case Facing.Left: return Facing.Right;
+    }
+  }
+
+  public on(rasterMap: RasterMap): Square | undefined {
+    if (rasterMap[this.point[0]] != null) {
+      return rasterMap[this.point[0]][this.point[1]];
+    }
+  }
+
+  public facingTo(point: Point): Facing {
+    if (this.point[0] === point[0] && this.point[1] === point[1] - 1) {
+      return Facing.Right;
+    } else if (this.point[0] === point[0] && this.point[1] === point[1] + 1) {
+      return Facing.Left
+    } else if (this.point[0] === point[0] + 1 && this.point[1] === point[1]) {
+      return Facing.Up;
+    } else if (this.point[0] === point[0] - 1 && this.point[1] === point[1]) {
+      return Facing.Down;
+    } else {
+      throw new Error(`Cannot determine facing towards a non-adjacent point`);
     }
   }
 }

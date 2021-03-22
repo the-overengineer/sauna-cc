@@ -55,14 +55,6 @@ describe('RasterMap utility functions', () => {
       expect(() => parse('')).to.throw;
     });
 
-    it('should not accept rows of unequal length', () => {
-      const invalidMap = `@--
-+
-+---`;
-
-      expect(() => parse(invalidMap)).to.throw;
-    });
-
     it('should not accept invalid characters', () => {
       const invalidMap = `@--
    |

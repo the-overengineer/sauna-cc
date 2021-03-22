@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { Facing, Location } from './Location';
 
-import { hasValidEndpoints, isValidLocation } from './Navigator';
+import { hasValidEndpoints, isValidLocation, walk } from './Navigator';
 import { parse } from './RasterMap';
 
 describe('Navigator', () => {
@@ -55,28 +55,58 @@ A-@`);
  -|
 x-A`);
     it('should not accept values out of range of the grid', () => {
-      expect(isValidLocation(map, new Location([3, 1], Facing.Left), Facing.Left)).to.eq(false);
-      expect(isValidLocation(map, new Location([1, 3], Facing.Left), Facing.Left)).to.eq(false);
+      expect(isValidLocation(map, new Location([3, 1], Facing.Left), new Location([3, 2], Facing.Left))).to.eq(false);
+      expect(isValidLocation(map, new Location([1, 3], Facing.Left), new Location([2, 3], Facing.Left))).to.eq(false);
 
     });
 
     it('should not accept an empty space', () => {
-      expect(isValidLocation(map, new Location([1, 0], Facing.Left), Facing.Left)).to.eq(false);
+      expect(isValidLocation(map, new Location([1, 0], Facing.Left), new Location([3, 2], Facing.Left))).to.eq(false);
     });
 
     it('should not accept a square that is 90 deg to the current straight path', () => {
-      expect(isValidLocation(map, new Location([1, 2], Facing.Down), Facing.Right)).to.eq(false);
-      expect(isValidLocation(map, new Location([1, 1], Facing.Left), Facing.Down)).to.eq(false);
+      expect(isValidLocation(map, new Location([1, 2], Facing.Down), new Location([0, 1], Facing.Right))).to.eq(false);
+      expect(isValidLocation(map, new Location([1, 1], Facing.Left), new Location([0, 0], Facing.Down))).to.eq(false);
     });
 
     it('should accept a straight path', () => {
-      expect(isValidLocation(map, new Location([2, 1], Facing.Down), Facing.Left)).to.eq(true);
-      expect(isValidLocation(map, new Location([0, 1], Facing.Right), Facing.Right)).to.eq(true);
+      expect(isValidLocation(map, new Location([2, 1], Facing.Down), new Location([2, 2], Facing.Down))).to.eq(true);
+      expect(isValidLocation(map, new Location([0, 1], Facing.Right), new Location([0, 0], Facing.Right))).to.eq(true);
     });
 
     it('should accept a crossroads', () => {
-      expect(isValidLocation(map, new Location([2, 2], Facing.Right), Facing.Right)).to.eq(true);
-      expect(isValidLocation(map, new Location([0, 2], Facing.Down), Facing.Down)).to.eq(true);
+      expect(isValidLocation(map, new Location([2, 2], Facing.Right), new Location([1, 2], Facing.Right))).to.eq(true);
+      expect(isValidLocation(map, new Location([0, 2], Facing.Down), new Location([0, 1], Facing.Right))).to.eq(true);
+    });
+  });
+
+  describe('walking examples', () => {
+    it('should work for a basic example', () => {
+      const map = parse(`  @---A---+
+          |
+  x-B-+   C
+      |   |
+      +---+`);
+
+      console.log('y'.repeat(30))
+
+      expect(walk(map).letters).to.eq('ACB')
+      expect(walk(map).path).to.eq('@---A---+|C|+---+|+-B-x');
+    });
+
+    it('should work for straight intersection passes', () => {
+      const map = parse(`  @
+  | +-C--+
+  A |    |
+  +---B--+
+    |      x
+    |      |
+    +---D--+`);
+  
+    console.log('x'.repeat(30))
+    expect(walk(map).letters).to.eq('ABCD')
+    expect(walk(map).path).to.eq('@|A+---B--+|+--C-+|-||+---D--+|x');
+  
     });
   });
 });
