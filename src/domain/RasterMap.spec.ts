@@ -1,8 +1,9 @@
+// tslint:disable:no-unused-expression
 import { expect } from 'chai';
 
-import { isSquare, isValidLetter } from './map';
+import { isSquare, isValidLetter, parse } from './RasterMap';
 
-describe('Map utility functions', () => {
+describe('RasterMap utility functions', () => {
   describe('isValidLetter', () => {
     it('should accept uppercase English letters', () => {
       ['A', 'C', 'Y', 'R', 'U'].forEach((letter) => {
@@ -46,6 +47,34 @@ describe('Map utility functions', () => {
       ['$', 'ž', '_', ' '].forEach((letter) => {
         expect(isSquare(letter)).to.eq(false);
       });
+    });
+  });
+
+  describe('parse', () => {
+    it('should throw if given an empty string', () => {
+      expect(() => parse('')).to.throw;
+    });
+
+    it('should not accept rows of unequal length', () => {
+      const invalidMap = `@--
++
++---`;
+
+      expect(() => parse(invalidMap)).to.throw;
+    });
+
+    it('should not accept invalid characters', () => {
+      const invalidMap = `@--
+   |
+x-%`;
+      expect(() => parse(invalidMap)).to.throw;
+    });
+
+    it('should produce a map representation for valid input squares (without checking valid pathfinding)', () => {
+      const invalidMap = `@-+
+  |
+x-+`;
+      expect(parse(invalidMap)).to.be.ok;
     });
   });
 });
