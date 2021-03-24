@@ -1,163 +1,41 @@
-# [Software Sauna](https://www.softwaresauna.com/) Code Challenge
+# Software Sauna Coding Challenge
 
-- Path following algorithm in ASCII Map
-- Find the position of character `@`
-- Follow the path, stop when character `x` is reached
+A solution for the [coding challenge](https://github.com/softwaresauna/code-challenge/blob/main/README.md) written in TypeScript.
 
-## Code Challenge
+This solution was written piecemeal on three separate occasions during two days (see commit times). Certain principles were followed:
 
-Write a piece of code that takes ASCII map as an input and outputs the collected letters and the list of characters of the travelled path.
+1. Do not overengineer it, despite my username - most pieces of the implementation could have been written in a more generic manner and then
+extended or composed to make them more domain-specific. However, given the nature of the challenge, they are instead all aware of the core
+domain to some degree or another, while being relatively easy to change.
+2. Keep things descriptive - Type aliases, enumerations, and clear function names were used to make it more or less obvious what each
+component does. Comments were sprinkled on top for ease of reading, but in most cases they should not be necessary.
+3. Test, to a reasonable degree - Generic or somewhat generic functions were tested. On top of that, tests were added to the integration
+layer, almost E2E. Some of it was done in TDD fashion, other bits as assurance of already written behaviour. To be honest, I love tests,
+but am not too into TDD. Domain logic in the middle was explicitly not tested unless needed. Instead, to keep the solution reasonably
+flexible, an assumption was made that if it works on the bottom level, as well as the top level, the middle layers should be fine.
 
-  - Input: 
-    - ASCII map (hard-coded, in a file, copied from a magic scroll - your choice)
-  - Output:
-    - Collected letters
-    - Path as characters
+## Code Structure
 
-What we are looking for in the solution:
+The solution can broadly be classified into three parts:
 
-- clean code
-    - small methods/functions/classes
-    - good naming
-    - minimise code duplication
-- tests
-    - mandatory: acceptance tests with pasted examples from below
-    - bonus: microtests - small bits of logic should be tested separately (possible if clean code principles are observed, see above) ... for more on microtests see [this article](https://www.geepawhill.org/2020/06/12/microtest-tdd-more-definition)
+1. A handful of generic utilities for handling data types (collections, in this case)
+2. Domain logic pertaining to the raster map, collecting path elements, a "smart" location tracker, and finally a map navigator heavy
+on specific domain logic, which answers the question of "where can we navigate from here, given the constraints of the problem"
+3. A core index file which glues the map walking together with IO and basic error handling
 
-## Valid maps
+## Tasks/Running
 
-### Map 1 - a basic example
+To run the solution, use `yarn eval <input_file>`
 
+To run the tests, use `yarn test`
+
+To ensure code quality as per linter rules, run `yarn lint`
+
+Two input files from the challenge itself are included in the repo (one valid and one invalid). To run them, do:
+
+```bash
+
+yarn eval bad.map
+# or
+yarn eval example.map
 ```
-  @---A---+
-          |
-  x-B-+   C
-      |   |
-      +---+
-```
-
-Expected result: 
-- Letters ```ACB```
-- Path as characters ```@---A---+|C|+---+|+-B-x```
-
-### Map 2 - go straight through intersections
-
-```
-  @
-  | +-C--+
-  A |    |
-  +---B--+
-    |      x
-    |      |
-    +---D--+
-```
-
-Expected result: 
-- Letters ```ABCD```
-- Path as characters ```@|A+---B--+|+--C-+|-||+---D--+|x```
-
-### Map 3 - letters may be found on turns
-
-```
-  @---A---+
-          |
-  x-B-+   |
-      |   |
-      +---C
-```
-
-Expected result: 
-- Letters ```ACB```
-- Path as characters ```@---A---+|||C---+|+-B-x```
-
-### Map 4 - do not collect letters twice
-
-```
-    +--B--+
-    |   +-C-+
- @--A-+ | | |
-    | | +-+ D
-    +-+     |
-            x
-```
-
-Expected result: 
-- Letters ```ABCD``` (*not* `AABCCD`)
-- Path as characters ```@--A-+|+-+|A|+--B--+C|+-+|+-C-+|D|x```
-
-### Map 5 - keep direction, even in a compact space
-
-```
- +-B-+
- |  +C-+
-@A+ ++ D
- ++    x
-```
-
-Expected result: 
-- Letters ```ABCD```
-- Path as characters ```@A+++A|+-B-+C+++C-+Dx```
-
-## Invalid maps:
-
-### Map 6 - no start
-
-```
-     -A---+
-          |
-  x-B-+   C
-      |   |
-      +---+
-```
-
-Expected result: Error
-
-### Map 7 - no end
-
-```
-   @--A---+
-          |
-    B-+   C
-      |   |
-      +---+
-```
-
-Expected result: Error
-
-### Map 8 - multiple starts
-
-```
-   @--A-@-+
-          |
-  x-B-+   C
-      |   |
-      +---+
-```
-
-Expected result: Error
-
-### Map 9 - multiple ends
-
-```
-   @--A---+
-          |
-  x-Bx+   C
-      |   |
-      +---+
-```
-
-Expected result: Error
-
-### Map 10 - T forks
-
-```
-        x-B
-          |
-   @--A---+
-          |
-     x+   C
-      |   |
-      +---+
-```
-
-Expected result: Error

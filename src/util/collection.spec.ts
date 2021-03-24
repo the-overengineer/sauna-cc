@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { count, sum } from './collection';
 
-
 describe('collection utilities', () => {
   describe('sum', () => {
     it('should return 0 for an empty list', () => {

@@ -2,7 +2,6 @@ import { count, sum } from '../util/collection';
 import { Collector } from './Collector';
 import { Facing, Location, Point } from './Location';
 import {
-  isAnyDirectionSquare,
   isCrossroads,
   isEndSquare,
   isSquare,
@@ -27,7 +26,7 @@ export function hasValidEndpoints(rasterMap: RasterMap): boolean {
   return startSquareCount === 1 && endSquareCount === 1;
 }
 
-export function getPossibleNextLocations(rasterMap: RasterMap, location: Location): Location[] {
+function getPossibleNextLocations(rasterMap: RasterMap, location: Location): Location[] {
   const currentSquare = location.on(rasterMap)!;
 
   /*
@@ -110,6 +109,14 @@ export function findStartLocation(rasterMap: RasterMap): Location {
   throw new Error('Could not find a valid initial starting point and facing!');
 }
 
+/**
+ * Given a map, walks it from the start to the end point.
+ * The result is a collector which remembered all unique visited letters (in order),
+ * and a record of all visited characters in the path. In case of invalid or ambiguous
+ * maps, a descriptive error is thrown, and must be handled by the caller.
+ * @param rasterMap A raster representation of the map to walk/solve
+ * @returns Collected path and unique visited letters
+ */
 export function walk(rasterMap: RasterMap): Collector {
   if (!hasValidEndpoints(rasterMap)) {
     throw new Error(`Invalid raster map provided. A map needs to have exactly one start (@) and end (x) point, and all squares must be valid or empty`);

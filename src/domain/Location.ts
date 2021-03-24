@@ -81,16 +81,34 @@ export class Location {
     return !this.isVertical;
   }
 
+  /**
+   * Does the direction the location's facing is in match the facing of the square in question.
+   * Specifically, if we're facing a vertical direction (up/down), running into a - square is unacceptable.
+   * Same for horizontal (left/right) and |.
+   * Everything else, as long as it's a valid path square, works out.
+   * @param square
+   * @returns Is the square in question of a valid orientation for our current facing
+   */
   public matchesFacing(square: Square): boolean {
     return this.isVertical ? isValidVerticalSquare(square) : isValidHorizontalSquare(square);
   }
 
+  /**
+   * Get the character for this location inside a specific raster map
+   * @param rasterMap The map to look up the character in
+   * @returns Found character/square, or undefined if not a valid location
+   */
   public on(rasterMap: RasterMap): Square | undefined {
     if (rasterMap[this.point[0]] != null) {
       return rasterMap[this.point[0]][this.point[1]];
     }
   }
 
+  /**
+   * Is a location inside of the defined points of some raster map.
+   * @param rasterMap Map to compare to
+   * @returns Is the point within bounds
+   */
   public isIn(rasterMap: RasterMap): boolean {
     return this.on(rasterMap) != null;
   }

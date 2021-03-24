@@ -5,6 +5,9 @@ import { EOL } from 'os';
  */
 export type Square = string;
 
+/**
+ * A representation of a raster map of characters.
+ */
 export type RasterMap = Square[][];
 
 export const VERTICAL_SQUARE = '|';
@@ -35,9 +38,6 @@ export const isValidHorizontalSquare = (square: Square): boolean =>
 
 export const isCrossroads = (square: Square): boolean =>
   CROSSROADS_SQUARE === square || isStartSquare(square) || isEndSquare(square);
-
-export const isAnyDirectionSquare = (square: Square): boolean =>
-  isCrossroads(square) || isValidLetter(square);
 
 export const isSquare = (candidate: string): candidate is Square =>
   SIMPLE_PATH_SQUARES.has(candidate) || isValidLetter(candidate);

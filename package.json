@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "ts-mocha -p tsconfig.json src/**/*.spec.ts",
-    "run": "ts-node ./src/index.ts",
+    "eval": "ts-node ./src/index.ts",
     "lint": "tslint -c tslint.json 'src/**/*.ts'"
   },
   "repository": {
