@@ -31,7 +31,7 @@ function getPossibleNextLocations(rasterMap: RasterMap, location: Location): Loc
 
   /*
   * Determine the next valid squares that we could walk to from here. The logic is as follows:
-  * 1. If we are not in a crossroads square (+, or theoretically @), just power through it forwards. We can cross opposite-direction squares
+  * 1. If we are not in a crossroads square (- or |), just power through it forwards. We can cross opposite-orientation squares
   *    if we eventually get to a valid square with the same facing (underpass of sorts)
   * 2. If we're in a letter, prefer going straight. But if it does not work, allow turning left or right
   * 3. If we're in a crossroads square (+ or @), anything but going backwards is fine
