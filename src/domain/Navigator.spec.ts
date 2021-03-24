@@ -1,8 +1,7 @@
 // tslint:disable:no-unused-expression
 import { expect } from 'chai';
-import { Facing, Location } from './Location';
 
-import { hasValidEndpoints, isValidLocation, walk } from './Navigator';
+import { hasValidEndpoints, walk } from './Navigator';
 import { parse } from './RasterMap';
 
 describe('Navigator', () => {
@@ -48,36 +47,6 @@ x-+`);
 A-@`);
       expect(hasValidEndpoints(firstMap)).to.eq(true);
       expect(hasValidEndpoints(secondMap)).to.eq(true);
-    });
-  });
-
-  describe('isValidLocation', () => {
-    const map = parse(`@-+
- -|
-x-A`);
-    it('should not accept values out of range of the grid', () => {
-      expect(isValidLocation(map, new Location([3, 1], Facing.Left), new Location([3, 2], Facing.Left))).to.eq(false);
-      expect(isValidLocation(map, new Location([1, 3], Facing.Left), new Location([2, 3], Facing.Left))).to.eq(false);
-
-    });
-
-    it('should not accept an empty space', () => {
-      expect(isValidLocation(map, new Location([1, 0], Facing.Left), new Location([3, 2], Facing.Left))).to.eq(false);
-    });
-
-    it('should not accept a square that is 90 deg to the current straight path', () => {
-      expect(isValidLocation(map, new Location([1, 2], Facing.Down), new Location([0, 1], Facing.Right))).to.eq(false);
-      expect(isValidLocation(map, new Location([1, 1], Facing.Left), new Location([0, 0], Facing.Down))).to.eq(false);
-    });
-
-    it('should accept a straight path', () => {
-      expect(isValidLocation(map, new Location([2, 1], Facing.Down), new Location([2, 2], Facing.Down))).to.eq(true);
-      expect(isValidLocation(map, new Location([0, 1], Facing.Right), new Location([0, 0], Facing.Right))).to.eq(true);
-    });
-
-    it('should accept a crossroads', () => {
-      expect(isValidLocation(map, new Location([2, 2], Facing.Right), new Location([1, 2], Facing.Right))).to.eq(true);
-      expect(isValidLocation(map, new Location([0, 2], Facing.Down), new Location([0, 1], Facing.Right))).to.eq(true);
     });
   });
 

@@ -1,7 +1,17 @@
 import { count, sum } from '../util/collection';
 import { Collector } from './Collector';
 import { Facing, Location, Point } from './Location';
-import { isEndSquare, isStartSquare, isValidLetter, RasterMap, Square } from './RasterMap';
+import {
+  isAnyDirectionSquare,
+  isCrossroads,
+  isEndSquare,
+  isSquare,
+  isStartSquare,
+  isValidHorizontalSquare,
+  isValidLetter,
+  isValidVerticalSquare,
+  RasterMap,
+} from './RasterMap';
 
 /**
  * Determines whether a map has both valid endpoints - a start and an end - and only one of each.
@@ -17,75 +27,43 @@ export function hasValidEndpoints(rasterMap: RasterMap): boolean {
   return startSquareCount === 1 && endSquareCount === 1;
 }
 
-function isValidVerticalSquare(square: Square): boolean {
-  return ['|', '+'].includes(square) || isValidLetter(square) || isEndSquare(square);
-}
-
-function isValidHorizontalSquare(square: Square): boolean {
-  return ['-', '+'].includes(square) || isValidLetter(square) || isEndSquare(square);
-}
-
-function isAnyDirectionSquare(square: Square): boolean {
-  return square === '+' || isValidLetter(square) || isStartSquare(square) || isEndSquare(square);
-}
-
-export function isValidLocation(rasterMap: RasterMap, location: Location, fromLocation: Location): boolean {
-  if (location.point[0] < 0 || location.point[0] >= rasterMap.length) {
-    return false;
-  }
-
-  const row = rasterMap[location.point[0]];
-
-  if (location.point[1] < 0 || location.point[1] >= row.length) {
-    return false;
-  }
-
-  // We moved more than a square. This is technically not exhaustive, as a move of (-2, 1) would satisfy it, but let's not over-complicate
-  if (Math.abs(fromLocation.point[0] - location.point[0]) + Math.abs(fromLocation.point[1] - location.point[1]) !== 1) {
-    return false;
-  }
-
-  const locationSquare = location.on(rasterMap)!;
-
-  if (isAnyDirectionSquare(fromLocation.on(rasterMap)!)) {
-    return isValidVerticalSquare(locationSquare) || isValidHorizontalSquare(locationSquare);
-  }
-
-  switch (fromLocation.facing) {
-    case Facing.Down:
-    case Facing.Up:
-      return isValidVerticalSquare(locationSquare);
-    case Facing.Left:
-    case Facing.Right:
-      return isValidHorizontalSquare(locationSquare);
-    default:
-      throw new Error(`Invalid facing ${fromLocation.facing}`);
-  }
-}
-
 export function getPossibleNextLocations(rasterMap: RasterMap, location: Location): Location[] {
   const currentSquare = location.on(rasterMap)!;
 
-  if (isValidLocation(rasterMap, location.next, location)) {
-    return [location.next];
+  /*
+  * Determine the next valid squares that we could walk to from here. The logic is as follows:
+  * 1. If we are not in a crossroads square (+, or theoretically @), just power through it forwards. We can cross opposite-direction squares
+  *    if we eventually get to a valid square with the same facing (underpass of sorts)
+  * 2. If we're in a letter, prefer going straight. But if it does not work, allow turning left or right
+  * 3. If we're in a crossroads square (+ or @), anything but going backwards is fine
+  */
+  if (!isCrossroads(currentSquare) && !isValidLetter(currentSquare)) {
+    if (location.walkUntil(rasterMap, (square) => location.matchesFacing(square)) != null) {
+      return [location.next];
+    }
+  } else if (isValidLetter(currentSquare)) {
+    if (location.walkUntil(rasterMap, (square) => location.matchesFacing(square)) != null) {
+      return [location.next];
+    } else {
+      // Anything that would result in a valid square in a different direction on the vertical/horizontal scale
+      // We can consider it the same as turning left/right
+      return location
+        .neighbours
+        .filter((neighbour) => neighbour.isVertical !== location.isVertical);
+    }
+  } else {
+    return location
+      .neighbours
+      .filter((n) => n.facing !== location.oppositeFacing && isSquare(n.on(rasterMap)!) && n.matchesFacing(n.on(rasterMap)!));
   }
 
-  if (isAnyDirectionSquare(currentSquare)) {
-    // Any direction where we don't literally turn back is a valid location when we're on a crossroads
-    return location.neighbours.filter((n) => n.facing !== location.oppositeFacing);
-  } else if (isValidVerticalSquare(currentSquare)) {
-    return location.facing === Facing.Up ? [location.up] : [location.down];
-  } else if (isValidHorizontalSquare(currentSquare)) {
-    return location.facing === Facing.Right ? [location.right] : [location.left];
-  } else {
-    throw new Error(`Cannot navigate from invalid square ${currentSquare} at location (${location.point[0]}, ${location.point[1]})`);
-  }
+  return [];
 }
 
 export function getNextLocation(rasterMap: RasterMap, location: Location): Location {
-  const candidates = getPossibleNextLocations(rasterMap, location).filter((neighbour) => isValidLocation(rasterMap, neighbour, location));
+  const candidates = getPossibleNextLocations(rasterMap, location);
   if (candidates.length !== 1) {
-    throw new Error(`Expected exactly 1 potential future location, got ${candidates.length}`);
+    throw new Error(`Expected exactly 1 potential future location, got ${candidates.length}: (${candidates.map((c) => `(${c.point})`).join(', ')})`);
   }
 
   return candidates[0]!;

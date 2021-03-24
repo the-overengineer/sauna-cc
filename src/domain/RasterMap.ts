@@ -7,13 +7,37 @@ export type Square = string;
 
 export type RasterMap = Square[][];
 
-const SIMPLE_PATH_SQUARES: Set<Square> = new Set(['-', '|', '+', '@', 'x']);
+export const VERTICAL_SQUARE = '|';
+export const HORIZONTAL_SQUARE = '-';
+export const CROSSROADS_SQUARE = '+';
+export const START_SQUARE = '@';
+export const END_SQUARE = 'x';
 
-export const isStartSquare = (square: Square): boolean => square === '@';
+const SIMPLE_PATH_SQUARES: Set<Square> = new Set([
+  VERTICAL_SQUARE,
+  HORIZONTAL_SQUARE,
+  CROSSROADS_SQUARE,
+  START_SQUARE,
+  END_SQUARE,
+]);
 
-export const isEndSquare = (square: Square): boolean => square === 'x';
+export const isStartSquare = (square: Square): boolean => square === START_SQUARE;
+
+export const isEndSquare = (square: Square): boolean => square === END_SQUARE;
 
 export const isValidLetter = (square: Square) => /^[A-Z]$/.test(square);
+
+export const isValidVerticalSquare = (square: Square): boolean =>
+  [VERTICAL_SQUARE, CROSSROADS_SQUARE].includes(square) || isValidLetter(square) || isEndSquare(square);
+
+export const isValidHorizontalSquare = (square: Square): boolean =>
+  [HORIZONTAL_SQUARE, CROSSROADS_SQUARE].includes(square) || isValidLetter(square) || isEndSquare(square);
+
+export const isCrossroads = (square: Square): boolean =>
+  CROSSROADS_SQUARE === square || isStartSquare(square) || isEndSquare(square);
+
+export const isAnyDirectionSquare = (square: Square): boolean =>
+  isCrossroads(square) || isValidLetter(square);
 
 export const isSquare = (candidate: string): candidate is Square =>
   SIMPLE_PATH_SQUARES.has(candidate) || isValidLetter(candidate);
