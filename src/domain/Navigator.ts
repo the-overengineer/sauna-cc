@@ -49,7 +49,7 @@ export function getPossibleNextLocations(rasterMap: RasterMap, location: Locatio
       // We can consider it the same as turning left/right
       return location
         .neighbours
-        .filter((neighbour) => neighbour.isVertical !== location.isVertical);
+        .filter((neighbour) => neighbour.isVertical !== location.isVertical && isSquare(neighbour.on(rasterMap)!));
     }
   } else {
     return location
