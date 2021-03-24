@@ -66,6 +66,10 @@ export function isValidLocation(rasterMap: RasterMap, location: Location, fromLo
 export function getPossibleNextLocations(rasterMap: RasterMap, location: Location): Location[] {
   const currentSquare = location.on(rasterMap)!;
 
+  if (isValidLocation(rasterMap, location.next, location)) {
+    return [location.next];
+  }
+
   if (isAnyDirectionSquare(currentSquare)) {
     // Any direction where we don't literally turn back is a valid location when we're on a crossroads
     return location.neighbours.filter((n) => n.facing !== location.oppositeFacing);

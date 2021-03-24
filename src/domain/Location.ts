@@ -67,6 +67,15 @@ export class Location {
     }
   }
 
+  public get next(): Location {
+    switch (this.facing) {
+      case Facing.Up: return this.up;
+      case Facing.Right: return this.right;
+      case Facing.Down: return this.down;
+      case Facing.Left: return this.left;
+    }
+  }
+
   public facingTo(point: Point): Facing {
     if (this.point[0] === point[0] && this.point[1] === point[1] - 1) {
       return Facing.Right;

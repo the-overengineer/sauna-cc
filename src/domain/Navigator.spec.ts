@@ -1,3 +1,4 @@
+// tslint:disable:no-unused-expression
 import { expect } from 'chai';
 import { Facing, Location } from './Location';
 
@@ -88,9 +89,8 @@ x-A`);
       |   |
       +---+`);
 
-      console.log('y'.repeat(30))
 
-      expect(walk(map).letters).to.eq('ACB')
+      expect(walk(map).letters).to.eq('ACB');
       expect(walk(map).path).to.eq('@---A---+|C|+---+|+-B-x');
     });
 
@@ -102,11 +102,104 @@ x-A`);
     |      x
     |      |
     +---D--+`);
-  
-    console.log('x'.repeat(30))
+
+
     expect(walk(map).letters).to.eq('ABCD')
     expect(walk(map).path).to.eq('@|A+---B--+|+--C-+|-||+---D--+|x');
-  
+    });
+
+    it('should work for corner letters', () => {
+      const map = parse(`  @---A---+
+          |
+  x-B-+   |
+      |   |
+      +---C`);
+
+
+      expect(walk(map).letters).to.eq('ACB');
+      expect(walk(map).path).to.eq('@---A---+|||C---+|+-B-x');
+    });
+
+
+    it('should not collect letters twice', () => {
+      const map = parse(`    +--B--+
+    |   +-C-+
+ @--A-+ | | |
+    | | +-+ D
+    +-+     |
+            x`);
+
+
+      expect(walk(map).letters).to.eq('ABCD');
+      expect(walk(map).path).to.eq('@--A-+|+-+|A|+--B--+C|+-+|+-C-+|D|x');
+    });
+
+    it('should maintain direction in compact space', () => {
+          const map = parse(` +-B-+
+ |  +C-+
+@A+ ++ D
+ ++    x`);
+
+
+      expect(walk(map).letters).to.eq('ABCD');
+      expect(walk(map).path).to.eq('@A+++A|+-B-+C+++C-+Dx');
+    });
+
+    it('should refuse maps with no start', () => {
+          const map = parse(`     -A---+
+          |
+  x-B-+   C
+      |   |
+      +---+`);
+
+
+      expect(() => walk(map).letters).to.throw;
+    });
+
+    it('should refuse maps with no end', () => {
+          const map = parse(`   @--A---+
+          |
+    B-+   C
+      |   |
+      +---+`);
+
+
+      expect(() => walk(map).letters).to.throw;
+    });
+
+    it('should refuse maps with multiple starts', () => {
+          const map = parse(`   @--A-@-+
+          |
+  x-B-+   C
+      |   |
+      +---+`);
+
+
+      expect(() => walk(map).letters).to.throw;
+    });
+
+    it('should refuse maps with multiple ends', () => {
+          const map = parse(`   @--A---+
+          |
+  x-Bx+   C
+      |   |
+      +---+`);
+
+
+      expect(() => walk(map).letters).to.throw;
+    });
+
+    it('should refuse maps with ambiguous turns', () => {
+          const map = parse(`        x-B
+          |
+   @--A---+
+          |
+     x+   C
+      |   |
+      +---+`);
+
+
+      expect(() => walk(map).letters).to.throw;
     });
   });
 });
